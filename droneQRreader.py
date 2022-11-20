@@ -33,7 +33,7 @@ def getContours(img):
 
             # Warp the contour to a square image using source and output corner points
             if len(approxcorners) == 4:
-                # We only want contours closest to a square (numCorners = 4)
+                # We only want to warp contours closest to a square (numCorners = 4)
                 ptsSource = np.float32([[approxcorners[0][0][0], approxcorners[0][0][1]],
                                         [approxcorners[2][0][0], approxcorners[0][0][1]],
                                         [approxcorners[0][0][0], approxcorners[2][0][1]],
@@ -60,23 +60,27 @@ def getContours(img):
 
 
 # Main Video Capture Loop
-capture = cv2.VideoCapture(1)
+ONBOARD_CAMERA = 0  # If there is no onboard camera, use this value for external cameras
+EXTERNAL_CAMERA = 1
+
+capture = cv2.VideoCapture(EXTERNAL_CAMERA)
 
 qrdetector = cv2.QRCodeDetector()
 
 while True:
     success, frame = capture.read()
+
+    # Processing
     frameGrey = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     frameBlur = cv2.GaussianBlur(frameGrey, (5, 5), 1)
     frameCanny = cv2.Canny(frameBlur, 75, 200, 1)
-
     frameContours = frame.copy()
 
     getContours(frameCanny)
 
     cv2.imshow("contour detection", frameContours)
 
-    if cv2.waitKey(1) & 0xFF == 27:
+    if cv2.waitKey(1) & 0xFF == 27:  # Esc
         break
 
 cv2.destroyAllWindows()
